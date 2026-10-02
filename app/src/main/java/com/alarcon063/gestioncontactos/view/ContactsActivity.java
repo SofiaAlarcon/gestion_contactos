@@ -14,7 +14,7 @@ import com.alarcon063.gestioncontactos.data.ContactsRepository;
 import com.alarcon063.gestioncontactos.databinding.ActivityContactsBinding;
 import com.alarcon063.gestioncontactos.domain.Contact;
 
-public class ContactsActivity extends AppCompatActivity  {
+public class ContactsActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
     private static final String LOG_TAG = ContactsActivity.class.getSimpleName();
     private ActivityContactsBinding binding;
     private ContactManager contactManager;
@@ -37,7 +37,8 @@ public class ContactsActivity extends AppCompatActivity  {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-
+        SearchView searchView = binding.searchView;
+        searchView.setOnQueryTextListener(this);
     }
 
     private ContactManager getContactManager() {
@@ -47,7 +48,16 @@ public class ContactsActivity extends AppCompatActivity  {
         return contactManager;
     }
 
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        return false;
+    }
 
+    @Override
+    public boolean onQueryTextChange(String s) {
+        getContactManager().buscar(s);
+        return false;
+    }
 
     public void onClickAddButton(View view) {
         Intent i = new Intent(getApplicationContext(), FormActivity.class);

@@ -5,6 +5,7 @@
     <string name="inputPassword">Contraseña</string>
     <string name="buttonLogin">Iniciar sesión</string>
     <string name="contacts">Contactos</string>
+    <string name="search">Buscar</string>
     <string name="newContact">Nuevo contacto</string>
     <string name="buttonDone">Hecho</string>
     <string name="namePlaceholder">Nombre</string>

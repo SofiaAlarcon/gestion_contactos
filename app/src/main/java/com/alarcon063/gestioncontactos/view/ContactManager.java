@@ -53,6 +53,21 @@ public class ContactManager extends RecyclerView.Adapter<ContactManager.ViewHold
         return contactsList.size();
     }
 
+    public void buscar(final String textoBuscar) {
+        int longitud = textoBuscar.length();
+        if (longitud == 0) {
+            this.contactsList = new ArrayList<>();
+            this.contactsList.addAll(ContactsRepository.getList());
+        } else {
+            List<Contact> resultado = ContactsRepository.getList().stream()
+                    .filter(i -> i.getFullname().toLowerCase().contains(textoBuscar.toLowerCase()))
+                    .collect(Collectors.toList());
+
+            this.contactsList = new ArrayList<>();
+            contactsList.addAll(resultado);
+        }
+        notifyDataSetChanged();
+    }
 
     public void save(String name, String lastName, String phone, String address, Gender gender, View view) {
         Contact contact = new Contact();
