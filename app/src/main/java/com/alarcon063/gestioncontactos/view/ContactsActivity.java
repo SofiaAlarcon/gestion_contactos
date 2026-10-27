@@ -1,10 +1,15 @@
 package com.alarcon063.gestioncontactos.view;
 
 import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.SearchView;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -39,6 +44,14 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
 
         SearchView searchView = binding.searchView;
         searchView.setOnQueryTextListener(this);
+
+        // Muestra u coulta botón de cerrar sesion
+        searchView.setOnSearchClickListener(view -> onSearchClick());
+        searchView.setOnCloseListener(this::onSearchClose);
+
+        // Botón cerrar
+        ImageButton closeBtn = binding.closeButton;
+        closeBtn.setOnClickListener(view ->onCloseClick());
     }
 
     private ContactManager getContactManager() {
@@ -74,5 +87,27 @@ public class ContactsActivity extends AppCompatActivity implements SearchView.On
         getContactManager().contactsList = ContactsRepository.getList();
         recyclerView.setAdapter(getContactManager());
         binding.searchView.onActionViewCollapsed();
+    }
+
+    private void onSearchClick() {
+        ImageButton closeBtn = binding.closeButton;
+        closeBtn.setVisibility(View.GONE);
+    }
+
+    private boolean onSearchClose() {
+        ImageButton closeBtn = binding.closeButton;
+        closeBtn.setVisibility(View.VISIBLE);
+        return false;
+    }
+
+    private void onCloseClick() {
+        SharedPreferences pref = getSharedPreferences("mi_agenda", Context.MODE_PRIVATE);
+        pref.edit().putString("auth", "UNAUTHENTICATED").apply();
+        toLogingActivity();
+    }
+
+    private void toLogingActivity() {
+        Intent i = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(i);
     }
 }

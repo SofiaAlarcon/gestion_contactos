@@ -9,4 +9,5 @@
     <string name="newContact">Nuevo contacto</string>
     <string name="buttonDone">Hecho</string>
     <string name="namePlaceholder">Nombre</string>
+    <string name="salir">Salir</string>
 </resources>

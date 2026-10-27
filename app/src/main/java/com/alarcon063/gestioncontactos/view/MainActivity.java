@@ -1,6 +1,8 @@
 package com.alarcon063.gestioncontactos.view;
 
 import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
@@ -28,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
         // Login Button
         Button loginButton = binding.loginButton;
         loginButton.setOnClickListener(view -> onLoginClick());
+
+        isLogged();
     }
 
     private void onLoginClick() {
@@ -37,11 +41,26 @@ public class MainActivity extends AppCompatActivity {
         boolean isValid = loginInteractor.validateCredentials(username, password);
 
         if(isValid) {
-            Intent i = new Intent(getApplicationContext(), ContactsActivity.class);
-            startActivity(i);
+            SharedPreferences pref = getSharedPreferences("mi_agenda", Context.MODE_PRIVATE);
+            pref.edit().putString("auth", "AUTHENTICATED").apply();
+            toContactsActivity();
         } else {
             Toast.makeText(this, "Ingrese sus credenciales", Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    private void toContactsActivity(){
+        Intent i = new Intent(getApplicationContext(), ContactsActivity.class);
+
+        startActivity(i);
+    }
+    private void isLogged() {
+        SharedPreferences pref = getSharedPreferences("mi_agenda", Context.MODE_PRIVATE);
+        String auth = pref.getString("auth", "UNAUTHENTICATED");
+
+        if (auth.equals("AUTHENTICATED")){
+            toContactsActivity();
+        }
     }
 }
