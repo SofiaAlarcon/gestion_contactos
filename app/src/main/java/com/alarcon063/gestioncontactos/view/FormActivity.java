@@ -37,6 +37,10 @@ public class FormActivity extends AppCompatActivity {
         TextView formTitle = binding.formTitle;
         formTitle.setText(title);
 
+        // If editing, fill fields with previous data
+        Contact contact = (Contact) getIntent().getSerializableExtra("contact");
+        loadPreviousData(contact);
+
         doneButton.setOnClickListener(this::onDoneClick);
     }
 
@@ -74,5 +78,22 @@ public class FormActivity extends AppCompatActivity {
             contactManager = new ContactManager(this, repository);
         }
         return contactManager;
+    }
+
+    private void loadPreviousData(Contact contact) {
+        if (contact == null) {
+            return;
+        }
+        binding.formInputName.setText(contact.getName());
+        binding.formInputLastName.setText(contact.getLastName());
+        binding.formInputPhone.setText(contact.getPhone());
+        binding.formInputAddress.setText(contact.getAddress());
+
+        Gender gender = contact.getGender();
+        if (gender == Gender.FEMALE) {
+            binding.genderFemale.setChecked(true);
+        } else {
+            binding.genderMale.setChecked(true);
+        }
     }
 }

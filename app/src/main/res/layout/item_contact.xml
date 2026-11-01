@@ -45,6 +45,14 @@
             android:minWidth="48dp"
             android:src="@android:drawable/ic_menu_call" />
 
+        <ImageButton
+            android:id="@+id/editButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Editar"
+            android:minWidth="48dp"
+            android:src="@android:drawable/ic_menu_edit" />
+
     </LinearLayout>
 
 </RelativeLayout>

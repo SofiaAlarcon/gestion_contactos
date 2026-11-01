@@ -117,6 +117,7 @@ public class ContactManager extends RecyclerView.Adapter<ContactManager.ViewHold
             name = (TextView) itemView.findViewById(R.id.text_view_nombre_contacto);
             phone = (TextView) itemView.findViewById(R.id.text_view_numero_contacto);
             ImageButton callButton = itemView.findViewById(R.id.callButton);
+            ImageButton editButton = itemView.findViewById(R.id.editButton);
 
             callButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -125,6 +126,18 @@ public class ContactManager extends RecyclerView.Adapter<ContactManager.ViewHold
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     String phone = contactsList.get(getAdapterPosition()).getPhone();
                     intent.setData(Uri.parse("tel:" + phone));
+                    context.startActivity(intent);
+                }
+            });
+
+            editButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Context context = view.getContext();
+                    Intent intent = new Intent(context, FormActivity.class);
+                    Contact contact = contactsList.get(getAdapterPosition());
+                    intent.putExtra("contact", contact);
+                    intent.putExtra("title", "Editar");
                     context.startActivity(intent);
                 }
             });
