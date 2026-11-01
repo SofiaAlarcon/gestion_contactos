@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alarcon063.gestioncontactos.R;
-import com.alarcon063.gestioncontactos.data.ContactsRepository;
+import com.alarcon063.gestioncontactos.data.sqlite.ContactsRepository;
 import com.alarcon063.gestioncontactos.databinding.ActivityFormBinding;
 import com.alarcon063.gestioncontactos.domain.Contact;
 import com.alarcon063.gestioncontactos.domain.Gender;
@@ -20,9 +20,13 @@ public class FormActivity extends AppCompatActivity {
     private ActivityFormBinding binding;
     private ContactManager contactManager;
 
+    private ContactsRepository repository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        repository = new ContactsRepository(this);
 
         binding = ActivityFormBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -32,6 +36,10 @@ public class FormActivity extends AppCompatActivity {
         String title = getIntent().getStringExtra("title");
         TextView formTitle = binding.formTitle;
         formTitle.setText(title);
+
+        // If editing, fill fields with previous data
+        Contact contact = (Contact) getIntent().getSerializableExtra("contact");
+        loadPreviousData(contact);
 
         doneButton.setOnClickListener(this::onDoneClick);
     }
@@ -57,7 +65,9 @@ public class FormActivity extends AppCompatActivity {
             gender = Gender.MALE;
         }
 
-        getContactManager().save(name, lastName, phone, address, gender, view);
+        Contact contact = (Contact) getIntent().getSerializableExtra("contact");
+        long id = contact != null ? contact.getId() : -1;
+        getContactManager().save(id, name, lastName, phone, address, gender, view);
 
         // Eliminar la actividad actual y volver a la anterior (ContactsActivity)
         finish();
@@ -65,8 +75,25 @@ public class FormActivity extends AppCompatActivity {
 
     private ContactManager getContactManager() {
         if(contactManager == null) {
-            contactManager = new ContactManager(this, ContactsRepository.getList());
+            contactManager = new ContactManager(this, repository);
         }
         return contactManager;
+    }
+
+    private void loadPreviousData(Contact contact) {
+        if (contact == null) {
+            return;
+        }
+        binding.formInputName.setText(contact.getName());
+        binding.formInputLastName.setText(contact.getLastName());
+        binding.formInputPhone.setText(contact.getPhone());
+        binding.formInputAddress.setText(contact.getAddress());
+
+        Gender gender = contact.getGender();
+        if (gender == Gender.FEMALE) {
+            binding.genderFemale.setChecked(true);
+        } else {
+            binding.genderMale.setChecked(true);
+        }
     }
 }

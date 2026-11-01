@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alarcon063.gestioncontactos.R;
-import com.alarcon063.gestioncontactos.data.ContactsRepository;
+import com.alarcon063.gestioncontactos.data.sqlite.ContactsRepository;
 import com.alarcon063.gestioncontactos.domain.Contact;
 import com.alarcon063.gestioncontactos.domain.Gender;
 
@@ -31,6 +31,14 @@ public class ContactManager extends RecyclerView.Adapter<ContactManager.ViewHold
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.contactsList = new ArrayList<>();
         this.contactsList.addAll(list);
+    }
+    private ContactsRepository repository;
+
+    public ContactManager(Context context, ContactsRepository repository) {
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.contactsList = new ArrayList<>();
+        this.contactsList.addAll(repository.findAll());
+        this.repository = repository;
     }
 
     @NonNull
@@ -55,11 +63,12 @@ public class ContactManager extends RecyclerView.Adapter<ContactManager.ViewHold
 
     public void buscar(final String textoBuscar) {
         int longitud = textoBuscar.length();
+        List<Contact> dbContacts = repository.findAll();
         if (longitud == 0) {
             this.contactsList = new ArrayList<>();
-            this.contactsList.addAll(ContactsRepository.getList());
+            this.contactsList.addAll(dbContacts);
         } else {
-            List<Contact> resultado = ContactsRepository.getList().stream()
+            List<Contact> resultado = dbContacts.stream()
                     .filter(i -> i.getFullname().toLowerCase().contains(textoBuscar.toLowerCase()))
                     .collect(Collectors.toList());
 
@@ -69,17 +78,24 @@ public class ContactManager extends RecyclerView.Adapter<ContactManager.ViewHold
         notifyDataSetChanged();
     }
 
-    public void save(String name, String lastName, String phone, String address, Gender gender, View view) {
+    public void save(Long id, String name, String lastName, String phone, String address, Gender gender, View view) {
+        boolean isEditing = id != -1;
+
         Contact contact = new Contact();
         contact.setName(name);
         contact.setLastName(lastName);
         contact.setPhone(phone);
         contact.setAddress(address);
         contact.setGender(gender);
-        ContactsRepository.getList().add(contact);
+
+        if (!isEditing) {
+            repository.insert(contact);
+        } else  {
+            repository.update(id, contact);
+        }
 
         this.contactsList = new ArrayList<>();
-        this.contactsList.addAll(ContactsRepository.getList());
+        this.contactsList.addAll(repository.findAll());
 
         notifyDataSetChanged();
         Context context = view.getContext();
@@ -101,6 +117,7 @@ public class ContactManager extends RecyclerView.Adapter<ContactManager.ViewHold
             name = (TextView) itemView.findViewById(R.id.text_view_nombre_contacto);
             phone = (TextView) itemView.findViewById(R.id.text_view_numero_contacto);
             ImageButton callButton = itemView.findViewById(R.id.callButton);
+            ImageButton editButton = itemView.findViewById(R.id.editButton);
 
             callButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -109,6 +126,18 @@ public class ContactManager extends RecyclerView.Adapter<ContactManager.ViewHold
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     String phone = contactsList.get(getAdapterPosition()).getPhone();
                     intent.setData(Uri.parse("tel:" + phone));
+                    context.startActivity(intent);
+                }
+            });
+
+            editButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Context context = view.getContext();
+                    Intent intent = new Intent(context, FormActivity.class);
+                    Contact contact = contactsList.get(getAdapterPosition());
+                    intent.putExtra("contact", contact);
+                    intent.putExtra("title", "Editar");
                     context.startActivity(intent);
                 }
             });
